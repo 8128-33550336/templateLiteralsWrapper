@@ -1,0 +1,33 @@
+{
+  "name": "@8128-33550336/templateliteralswrapper",
+  "version": "1.0.0",
+  "description": "Makes it easier to indent inside template literals.",
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/8128-33550336/templateLiteralsWrapper.git"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "author": "8128-33550336",
+  "bugs": {
+    "url": "https://github.com/8128-33550336/templateLiteralsWrapper/issues"
+  },
+  "homepage": "https://github.com/8128-33550336/templateLiteralsWrapper#readme",
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.4"
+  }
+}
