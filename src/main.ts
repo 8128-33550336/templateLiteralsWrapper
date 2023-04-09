@@ -31,16 +31,17 @@ export function templateLiteralsTrimmer(literals: (readonly (string | undefined)
     console.log({ raw: literals.raw[0], m: literals.raw[0].match(/^[^\n]*\n([\s]*)/), cutLength });
 
     const removeRegexp = new RegExp(String.raw`\n[\t\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]{0,${cutLength}}`, 'g');
+    const removeRegexpWithoutLF = new RegExp(String.raw`^[\t\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]{0,${cutLength}}`, 'g');
     console.log(removeRegexp);
     const trimedLiterals = literals
         .map(text => text && text.replace(removeRegexp, '\n'))
         .map((v, i) => v && i === 0 ? v.replace(/^\n/, '') : v)
-        .map((v, i) => v && i === 0 ? v.replace(new RegExp(String.raw`^[\t\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]{0,${cutLength}}`, 'g'), '') : v)
+        .map((v, i) => v && i === 0 ? v.replace(removeRegexpWithoutLF, '') : v)
         .map((v, i, a) => v && (a.length - 1 === i) ? v.replace(/\n[\t\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]*$/, '') : v) as ((string | undefined)[]) & { raw?: string[]; };
     trimedLiterals.raw = literals.raw
         .map(text => text.replace(removeRegexp, '\n'))
         .map((v, i) => i === 0 ? v.replace(/^\n/, '') : v)
-        .map((v, i) => i === 0 ? v.replace(new RegExp(String.raw`^[\t\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]{0,${cutLength}}`, 'g'), '') : v)
+        .map((v, i) => i === 0 ? v.replace(removeRegexpWithoutLF, '') : v)
         .map((v, i, a) => a.length - 1 === i ? v.replace(/\n[\t\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]*$/, '') : v);
 
     return [trimedLiterals as templateLiteralsArg[0], ...args];
