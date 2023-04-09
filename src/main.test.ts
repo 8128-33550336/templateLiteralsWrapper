@@ -63,3 +63,13 @@ piyo
         `).toBe(`hoge\nfuga\npiyo`);
     });
 });
+
+describe('use substitutions', () => {
+    test('basic usage', () => {
+        expect(templateLiteralsWrapper`
+            ${'hoge'}
+            ${'fuga'}
+            ${'piyo'}
+        `).toBe(`hoge\nfuga\npiyo`);
+    });
+});
