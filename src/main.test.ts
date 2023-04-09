@@ -1,4 +1,4 @@
-import templateLiteralsWrapper, { templateLiteralsTrimmer } from "./main";
+import templateLiteralsWrapper from "./main";
 
 templateLiteralsWrapper;
 
