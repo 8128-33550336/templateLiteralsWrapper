@@ -1,9 +1,9 @@
-const spreadchain = <I extends unknown[], P extends unknown[], R>(convertor: (...arg: I) => P, func: (...arg: P) => R) => {
-    return (...arg: I) => func(...convertor(...arg));
+const spreadchain = <P extends unknown[], I extends unknown[], R>(before: (...arg: P) => I, after: (...arg: I) => R) => {
+    return (...arg: P) => after(...before(...arg));
 };
 
-const nospreadchain = <P extends unknown[], R, O>(convertor: (result: R) => O, func: (...arg: P) => R) => {
-    return (...arg: P) => convertor(func(...arg));
+const nospreadchain = <P extends unknown[], I, R>(before: (...arg: P) => I, after: (arg: I) => R) => {
+    return (...arg: P) => after(before(...arg));
 };
 
 type templateLiteralsArg = [literals: (readonly (string | undefined)[]) & { raw: readonly string[]; }, ...args: { toString(): string; }[]];
@@ -64,7 +64,7 @@ const templateLiteralsWrapperCreater = (usejson: boolean, convertFunc: typeof em
     const templateLiteralsWrapper = spreadchain(templateLiteralsWrapperNoSubstitutions, templateLiteralsToString) as templateLiteralsWrapper;
     templateLiteralsWrapper.tag = templateLiteralsWrapperNoSubstitutions;
     templateLiteralsWrapper.json = () => templateLiteralsWrapperCreater(true, convertFunc);
-    templateLiteralsWrapper.func = (innerConvertFunc: (text: string) => string) => templateLiteralsWrapperCreater(usejson, nospreadchain(convertFunc, innerConvertFunc));
+    templateLiteralsWrapper.func = (innerConvertFunc: (text: string) => string) => templateLiteralsWrapperCreater(usejson, nospreadchain(innerConvertFunc, convertFunc));
 
     return templateLiteralsWrapper;
 };
