@@ -1,8 +1,8 @@
-const spreadchain = <P extends unknown[], I extends unknown[], R>(before: (...arg: P) => I, after: (...arg: I) => R) => {
+const spreadChain = <P extends unknown[], I extends unknown[], R>(before: (...arg: P) => I, after: (...arg: I) => R) => {
     return (...arg: P) => after(...before(...arg));
 };
 
-const nospreadchain = <P extends unknown[], I, R>(before: (...arg: P) => I, after: (arg: I) => R) => {
+const noSpreadChain = <P extends unknown[], I, R>(before: (...arg: P) => I, after: (arg: I) => R) => {
     return (...arg: P) => after(before(...arg));
 };
 
@@ -33,18 +33,18 @@ function templateLiteralsTrimmer(literals: (readonly (string | undefined)[]) & {
     const removeRegexp = new RegExp(String.raw`\n[\t\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]{0,${cutLength}}`, 'g');
     const removeRegexpWithoutLF = new RegExp(String.raw`^[\t\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]{0,${cutLength}}`, 'g');
     console.log(removeRegexp);
-    const trimedLiterals = literals
+    const trimmedLiterals = literals
         .map(text => text && text.replace(removeRegexp, '\n'))
         .map((v, i) => v && i === 0 ? v.replace(/^\n/, '') : v)
         .map((v, i) => v && i === 0 ? v.replace(removeRegexpWithoutLF, '') : v)
         .map((v, i, a) => v && (a.length - 1 === i) ? v.replace(/\n[\t\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]*$/, '') : v) as ((string | undefined)[]) & { raw?: string[]; };
-    trimedLiterals.raw = literals.raw
+    trimmedLiterals.raw = literals.raw
         .map(text => text.replace(removeRegexp, '\n'))
         .map((v, i) => i === 0 ? v.replace(/^\n/, '') : v)
         .map((v, i) => i === 0 ? v.replace(removeRegexpWithoutLF, '') : v)
         .map((v, i, a) => a.length - 1 === i ? v.replace(/\n[\t\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]*$/, '') : v);
 
-    return [trimedLiterals as templateLiteralsArg[0], ...args];
+    return [trimmedLiterals as templateLiteralsArg[0], ...args];
 }
 
 interface templateLiteralsWrapper {
@@ -55,20 +55,20 @@ interface templateLiteralsWrapper {
 }
 
 const emptyFunc = <T extends unknown[]>(...arg: T) => arg;
-const templateLiteralsWrapperCreater = (usejson: boolean, convertFunc: typeof emptyFunc<[string]>) => {
-    const argConv: typeof emptyFunc<templateLiteralsArg> = usejson ?
+const templateLiteralsWrapperCreator = (useJson: boolean, convertFunc: typeof emptyFunc<[string]>) => {
+    const argConverter: typeof emptyFunc<templateLiteralsArg> = useJson ?
         (...arg: templateLiteralsArg) => [arg[0], ...arg.slice(1).map(v => JSON.stringify(v))] :
         emptyFunc<templateLiteralsArg>;
 
-    const templateLiteralsWrapperNoSubstitutions = spreadchain(argConv, templateLiteralsTrimmer);
-    const templateLiteralsWrapper = spreadchain(templateLiteralsWrapperNoSubstitutions, templateLiteralsToString) as templateLiteralsWrapper;
+    const templateLiteralsWrapperNoSubstitutions = spreadChain(argConverter, templateLiteralsTrimmer);
+    const templateLiteralsWrapper = spreadChain(templateLiteralsWrapperNoSubstitutions, templateLiteralsToString) as templateLiteralsWrapper;
     templateLiteralsWrapper.tag = templateLiteralsWrapperNoSubstitutions;
-    templateLiteralsWrapper.json = () => templateLiteralsWrapperCreater(true, convertFunc);
-    templateLiteralsWrapper.func = (innerConvertFunc: (text: string) => string) => templateLiteralsWrapperCreater(usejson, nospreadchain(innerConvertFunc, convertFunc));
+    templateLiteralsWrapper.json = () => templateLiteralsWrapperCreator(true, convertFunc);
+    templateLiteralsWrapper.func = (innerConvertFunc: (text: string) => string) => templateLiteralsWrapperCreator(useJson, noSpreadChain(innerConvertFunc, convertFunc));
 
     return templateLiteralsWrapper;
 };
 
-const templateLiteralsWrapper = templateLiteralsWrapperCreater(false, emptyFunc);
+const templateLiteralsWrapper = templateLiteralsWrapperCreator(false, emptyFunc);
 
 export default templateLiteralsWrapper;
