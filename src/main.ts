@@ -28,11 +28,8 @@ function templateLiteralsTrimmer(literals: (readonly (string | undefined)[]) & {
         }
     })() ?? 0;
 
-    console.log({ raw: literals.raw[0], m: literals.raw[0].match(/^[^\n]*\n([\s]*)/), cutLength });
-
     const removeRegexp = new RegExp(String.raw`\n[\t\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]{0,${cutLength}}`, 'g');
     const removeRegexpWithoutLF = new RegExp(String.raw`^[\t\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]{0,${cutLength}}`, 'g');
-    console.log(removeRegexp);
     const trimmedLiterals = literals
         .map(text => text && text.replace(removeRegexp, '\n'))
         .map((v, i) => v && i === 0 ? v.replace(/^\n/, '') : v)
